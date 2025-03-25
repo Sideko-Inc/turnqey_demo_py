@@ -1,0 +1,1704 @@
+openapi: 3.0.3
+info:
+  title: Turnqey Labs API
+  description: |-
+    Turnqey is an API developer platform providing read-only, real-time data aggregation 
+    for performance reporting on held-away crypto assets.
+  contact:
+    email: support@turnqey.xyz
+  version: 1.0.0
+servers:
+  - url: https://api2.turnqey.xyz/api
+    description: Production server
+  - url: https://turnqeyapi-sandbox.azurewebsites.net/api
+    description: Sandbox server for testing
+
+tags:
+  - name: Authentication
+    description: Operations for obtaining access tokens
+  - name: Accounts
+    description: Manage accounts, clients, wallets and exchanges
+  - name: Analytics
+    description: Analytics and reporting operations
+  - name: Market
+    description: Market data operations
+
+paths:
+  /NewAccessToken:
+    post:
+      tags:
+        - Authentication
+      summary: Generate access token using client ID and client secret
+      description: Authenticates with the provided credentials and returns an access token
+      operationId: generateAccessToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRequest'
+      responses:
+        '200':
+          description: Successful authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  
+  # Client Information Endpoints
+  /clients:
+    get:
+      tags:
+        - Accounts
+      summary: Get all clients
+      description: Retrieve a list of all clients
+      operationId: getClients
+      security:
+        - clientCredentials: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Client'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    post:
+      tags:
+        - Accounts
+      summary: Create a new client
+      description: Create a new client in the system
+      operationId: createClient
+      security:
+        - clientCredentials: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientCreate'
+      responses:
+        '201':
+          description: Client created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  
+  /clients/{clientId}:
+    get:
+      tags:
+        - Accounts
+      summary: Get client by ID
+      description: Retrieve a specific client by ID
+      operationId: getClientById
+      security:
+        - clientCredentials: []
+      parameters:
+        - $ref: '#/components/parameters/ClientIdParam'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    put:
+      tags:
+        - Accounts
+      summary: Update client
+      description: Update an existing client
+      operationId: updateClient
+      security:
+        - clientCredentials: []
+      parameters:
+        - $ref: '#/components/parameters/ClientIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientUpdate'
+      responses:
+        '200':
+          description: Client updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    delete:
+      tags:
+        - Accounts
+      summary: Delete client
+      description: Delete a client by ID
+      operationId: deleteClient
+      security:
+        - clientCredentials: []
+      parameters:
+        - $ref: '#/components/parameters/ClientIdParam'
+      responses:
+        '204':
+          description: Client deleted successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  
+  # Financial Advisor Endpoints
+  /advisors:
+    get:
+      tags:
+        - Accounts
+      summary: Get financial advisors
+      description: Retrieve a list of financial advisors
+      operationId: getAdvisors
+      security:
+        - clientCredentials: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Advisor'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  
+  /advisors/{advisorId}:
+    get:
+      tags:
+        - Accounts
+      summary: Get advisor by ID
+      description: Retrieve a specific financial advisor by ID
+      operationId: getAdvisorById
+      security:
+        - clientCredentials: []
+      parameters:
+        - name: advisorId
+          in: path
+          description: ID of the advisor to retrieve
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Advisor'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  
+  # Wallet Endpoints
+  /clients/{clientId}/wallets:
+    get:
+      tags:
+        - Accounts
+      summary: Get client wallets
+      description: Retrieve a list of wallets for a specific client
+      operationId: getClientWallets
+      security:
+        - clientCredentials: []
+      parameters:
+        - $ref: '#/components/parameters/ClientIdParam'
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Wallet'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    post:
+      tags:
+        - Accounts
+      summary: Add wallet to client
+      description: Add a new wallet for a specific client
+      operationId: addClientWallet
+      security:
+        - clientCredentials: []
+      parameters:
+        - $ref: '#/components/parameters/ClientIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WalletCreate'
+      responses:
+        '201':
+          description: Wallet added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Wallet'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  
+  /clients/{clientId}/wallets/{walletId}:
+    get:
+      tags:
+        - Accounts
+      summary: Get specific wallet
+      description: Retrieve a specific wallet for a client
+      operationId: getClientWalletById
+      security:
+        - clientCredentials: []
+      parameters:
+        - $ref: '#/components/parameters/ClientIdParam'
+        - name: walletId
+          in: path
+          description: ID of the wallet to retrieve
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Wallet'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    delete:
+      tags:
+        - Accounts
+      summary: Remove wallet
+      description: Remove a wallet from a client
+      operationId: removeClientWallet
+      security:
+        - clientCredentials: []
+      parameters:
+        - $ref: '#/components/parameters/ClientIdParam'
+        - name: walletId
+          in: path
+          description: ID of the wallet to remove
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Wallet removed successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  
+  # Exchange Endpoints
+  /clients/{clientId}/exchanges:
+    get:
+      tags:
+        - Accounts
+      summary: Get client exchanges
+      description: Retrieve a list of exchanges for a specific client
+      operationId: getClientExchanges
+      security:
+        - clientCredentials: []
+      parameters:
+        - $ref: '#/components/parameters/ClientIdParam'
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Exchange'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    post:
+      tags:
+        - Accounts
+      summary: Add exchange to client
+      description: Add a new exchange for a specific client
+      operationId: addClientExchange
+      security:
+        - clientCredentials: []
+      parameters:
+        - $ref: '#/components/parameters/ClientIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExchangeCreate'
+      responses:
+        '201':
+          description: Exchange added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exchange'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  
+  # Analytics and Reporting Endpoints
+  /clients/{clientId}/costbasis:
+    get:
+      tags:
+        - Analytics
+      summary: Get cost basis information
+      description: Retrieve cost basis information for a client
+      operationId: getClientCostBasis
+      security:
+        - clientCredentials: []
+      parameters:
+        - $ref: '#/components/parameters/ClientIdParam'
+        - $ref: '#/components/parameters/DateFromParam'
+        - $ref: '#/components/parameters/DateToParam'
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CostBasis'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  
+  /clients/{clientId}/trades:
+    get:
+      tags:
+        - Analytics
+      summary: Get client trades
+      description: Retrieve trade information for a client
+      operationId: getClientTrades
+      security:
+        - clientCredentials: []
+      parameters:
+        - $ref: '#/components/parameters/ClientIdParam'
+        - $ref: '#/components/parameters/DateFromParam'
+        - $ref: '#/components/parameters/DateToParam'
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Trade'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  
+  /clients/{clientId}/transfers:
+    get:
+      tags:
+        - Analytics
+      summary: Get client transfers
+      description: Retrieve transfer information for a client
+      operationId: getClientTransfers
+      security:
+        - clientCredentials: []
+      parameters:
+        - $ref: '#/components/parameters/ClientIdParam'
+        - $ref: '#/components/parameters/DateFromParam'
+        - $ref: '#/components/parameters/DateToParam'
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Transfer'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  
+  /clients/{clientId}/transactions:
+    get:
+      tags:
+        - Analytics
+      summary: Get client transactions
+      description: Retrieve transaction information for a client
+      operationId: getClientTransactions
+      security:
+        - clientCredentials: []
+      parameters:
+        - $ref: '#/components/parameters/ClientIdParam'
+        - $ref: '#/components/parameters/DateFromParam'
+        - $ref: '#/components/parameters/DateToParam'
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Transaction'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  
+  /clients/{clientId}/balances:
+    get:
+      tags:
+        - Analytics
+      summary: Get client balances
+      description: Retrieve balance information for a client
+      operationId: getClientBalances
+      security:
+        - clientCredentials: []
+      parameters:
+        - $ref: '#/components/parameters/ClientIdParam'
+        - name: date
+          in: query
+          description: Retrieves balances as of this date
+          required: false
+          schema:
+            type: string
+            format: date
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Balance'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  
+  /clients/{clientId}/deposits-withdrawals:
+    get:
+      tags:
+        - Analytics
+      summary: Get client deposits and withdrawals
+      description: Retrieve deposit and withdrawal information for a client
+      operationId: getClientDepositsWithdrawals
+      security:
+        - clientCredentials: []
+      parameters:
+        - $ref: '#/components/parameters/ClientIdParam'
+        - $ref: '#/components/parameters/DateFromParam'
+        - $ref: '#/components/parameters/DateToParam'
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DepositWithdrawal'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  
+  /clients/{clientId}/total-deposits-withdrawals:
+    get:
+      tags:
+        - Analytics
+      summary: Get client total deposits and withdrawals
+      description: Retrieve total deposits and withdrawals for a client
+      operationId: getClientTotalDepositsWithdrawals
+      security:
+        - clientCredentials: []
+      parameters:
+        - $ref: '#/components/parameters/ClientIdParam'
+        - $ref: '#/components/parameters/DateFromParam'
+        - $ref: '#/components/parameters/DateToParam'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TotalDepositWithdrawal'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  
+  # Market Data Endpoints
+  /holding-prices:
+    get:
+      tags:
+        - Market
+      summary: Get holding prices
+      description: Retrieve prices for holdings
+      operationId: getHoldingPrices
+      security:
+        - clientCredentials: []
+      parameters:
+        - name: symbol
+          in: query
+          description: Symbol of the asset
+          required: false
+          schema:
+            type: string
+        - $ref: '#/components/parameters/DateFromParam'
+        - $ref: '#/components/parameters/DateToParam'
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/HoldingPrice'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  
+  /prices:
+    get:
+      tags:
+        - Market
+      summary: Get current prices
+      description: Retrieve current prices for assets
+      operationId: getCurrentPrices
+      security:
+        - clientCredentials: []
+      parameters:
+        - name: symbol
+          in: query
+          description: Symbol of the asset
+          required: false
+          schema:
+            type: string
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Price'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  
+  /settlement-price:
+    get:
+      tags:
+        - Market
+      summary: Get settlement price
+      description: Retrieve settlement price for an asset
+      operationId: getSettlementPrice
+      security:
+        - clientCredentials: []
+      parameters:
+        - name: symbol
+          in: query
+          description: Symbol of the asset
+          required: true
+          schema:
+            type: string
+        - name: date
+          in: query
+          description: Date for the settlement price
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SettlementPrice'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  schemas:
+    # Authentication Schemas
+    TokenRequest:
+      type: object
+      required:
+        - client_id
+        - client_secret
+      properties:
+        client_id:
+          type: string
+          description: Client ID provided by Turnqey
+        client_secret:
+          type: string
+          description: Client secret provided by Turnqey
+      example:
+        client_id: "c3f42b1a-1e4d-4b8f-9c5e-7d6a3b2c1e4f"
+        client_secret: "d7e8f9a0-b1c2-3d4e-5f6a-7b8c9d0e1f2a"
+    
+    TokenResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          description: JWT token for API authentication
+        token_type:
+          type: string
+          description: Type of token (always "Bearer")
+        expires_in:
+          type: integer
+          description: Token expiration time in seconds
+      example:
+        access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        token_type: "Bearer"
+        expires_in: 3600
+    
+    # Client Schemas
+    Client:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the client
+        name:
+          type: string
+          description: Full name of the client
+        email:
+          type: string
+          format: email
+          description: Email address of the client
+        phone:
+          type: string
+          description: Phone number of the client
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when client was created
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp when client was last updated
+      example:
+        id: "123e4567-e89b-12d3-a456-426614174000"
+        name: "John Doe"
+        email: "john.doe@example.com"
+        phone: "+1-555-123-4567"
+        created_at: "2023-01-15T12:00:00Z"
+        updated_at: "2023-01-15T12:00:00Z"
+    
+    ClientCreate:
+      type: object
+      required:
+        - name
+        - email
+      properties:
+        name:
+          type: string
+          description: Full name of the client
+        email:
+          type: string
+          format: email
+          description: Email address of the client
+        phone:
+          type: string
+          description: Phone number of the client
+      example:
+        name: "John Doe"
+        email: "john.doe@example.com"
+        phone: "+1-555-123-4567"
+    
+    ClientUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Full name of the client
+        email:
+          type: string
+          format: email
+          description: Email address of the client
+        phone:
+          type: string
+          description: Phone number of the client
+      example:
+        name: "John Doe"
+        email: "john.doe@example.com"
+        phone: "+1-555-123-4567"
+    
+    # Advisor Schemas
+    Advisor:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the advisor
+        name:
+          type: string
+          description: Full name of the advisor
+        email:
+          type: string
+          format: email
+          description: Email address of the advisor
+        company:
+          type: string
+          description: Company name of the advisor
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when advisor was created
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp when advisor was last updated
+      example:
+        id: "123e4567-e89b-12d3-a456-426614174000"
+        name: "Jane Smith"
+        email: "jane.smith@example.com"
+        company: "Financial Advisors LLC"
+        created_at: "2023-01-10T09:30:00Z"
+        updated_at: "2023-01-15T14:22:00Z"
+    
+    # Wallet Schemas
+    Wallet:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the wallet
+        client_id:
+          type: string
+          format: uuid
+          description: ID of the client who owns this wallet
+        address:
+          type: string
+          description: Blockchain address of the wallet
+        blockchain:
+          type: string
+          description: Blockchain network (e.g. Ethereum, Bitcoin)
+        label:
+          type: string
+          description: User-defined label for the wallet
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when wallet was created
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp when wallet was last updated
+      example:
+        id: "123e4567-e89b-12d3-a456-426614174000"
+        client_id: "98765432-e89b-12d3-a456-426614174000"
+        address: "0x71C7656EC7ab88b098defB751B7401B5f6d8976F"
+        blockchain: "Ethereum"
+        label: "Main ETH Wallet"
+        created_at: "2023-01-15T12:00:00Z"
+        updated_at: "2023-01-15T12:00:00Z"
+    
+    WalletCreate:
+      type: object
+      required:
+        - address
+        - blockchain
+      properties:
+        address:
+          type: string
+          description: Blockchain address of the wallet
+        blockchain:
+          type: string
+          description: Blockchain network (e.g. Ethereum, Bitcoin)
+        label:
+          type: string
+          description: User-defined label for the wallet
+      example:
+        address: "0x71C7656EC7ab88b098defB751B7401B5f6d8976F"
+        blockchain: "Ethereum"
+        label: "Main ETH Wallet"
+    
+    # Exchange Schemas
+    Exchange:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the exchange
+        client_id:
+          type: string
+          format: uuid
+          description: ID of the client who owns this exchange account
+        exchange_name:
+          type: string
+          description: Name of the exchange
+        api_key:
+          type: string
+          description: API key for the exchange (masked)
+        status:
+          type: string
+          enum: [active, inactive, pending]
+          description: Current status of the exchange connection
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when exchange was added
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp when exchange was last updated
+      example:
+        id: "123e4567-e89b-12d3-a456-426614174000"
+        client_id: "98765432-e89b-12d3-a456-426614174000"
+        exchange_name: "Coinbase"
+        api_key: "****MASKED****"
+        status: "active"
+        created_at: "2023-01-15T12:00:00Z"
+        updated_at: "2023-01-15T12:00:00Z"
+    
+    ExchangeCreate:
+      type: object
+      required:
+        - exchange_name
+        - api_key
+        - api_secret
+      properties:
+        exchange_name:
+          type: string
+          description: Name of the exchange
+        api_key:
+          type: string
+          description: API key for the exchange
+        api_secret:
+          type: string
+          description: API secret for the exchange
+      example:
+        exchange_name: "Coinbase"
+        api_key: "abc123def456ghi789"
+        api_secret: "secret123456789"
+    
+    # Analytics Schemas
+    CostBasis:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the cost basis record
+        client_id:
+          type: string
+          format: uuid
+          description: ID of the client
+        asset:
+          type: string
+          description: Asset symbol (e.g. BTC, ETH)
+        quantity:
+          type: number
+          format: double
+          description: Asset quantity
+        cost_basis:
+          type: number
+          format: double
+          description: Total cost basis in USD
+        cost_per_unit:
+          type: number
+          format: double
+          description: Cost per unit in USD
+        acquisition_date:
+          type: string
+          format: date
+          description: Date when the asset was acquired
+      example:
+        id: "123e4567-e89b-12d3-a456-426614174000"
+        client_id: "98765432-e89b-12d3-a456-426614174000"
+        asset: "BTC"
+        quantity: 0.5
+        cost_basis: 20000
+        cost_per_unit: 40000
+        acquisition_date: "2022-12-01"
+    
+    Trade:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the trade
+        client_id:
+          type: string
+          format: uuid
+          description: ID of the client
+        exchange_id:
+          type: string
+          format: uuid
+          description: ID of the exchange where the trade occurred
+        trade_type:
+          type: string
+          enum: [buy, sell]
+          description: Type of trade
+        base_asset:
+          type: string
+          description: Base asset in the trading pair
+        quote_asset:
+          type: string
+          description: Quote asset in the trading pair
+        base_quantity:
+          type: number
+          format: double
+          description: Quantity of base asset
+        quote_quantity:
+          type: number
+          format: double
+          description: Quantity of quote asset
+        price:
+          type: number
+          format: double
+          description: Trade price
+        fee:
+          type: number
+          format: double
+          description: Fee paid for the trade
+        fee_asset:
+          type: string
+          description: Asset in which the fee was paid
+        timestamp:
+          type: string
+          format: date-time
+          description: When the trade occurred
+      example:
+        id: "123e4567-e89b-12d3-a456-426614174000"
+        client_id: "98765432-e89b-12d3-a456-426614174000"
+        exchange_id: "abcdef12-e89b-12d3-a456-426614174000"
+        trade_type: "buy"
+        base_asset: "BTC"
+        quote_asset: "USD"
+        base_quantity: 0.1
+        quote_quantity: 4000
+        price: 40000
+        fee: 10
+        fee_asset: "USD"
+        timestamp: "2023-01-15T12:00:00Z"
+    
+    Transfer:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the transfer
+        client_id:
+          type: string
+          format: uuid
+          description: ID of the client
+        source_type:
+          type: string
+          enum: [wallet, exchange]
+          description: Type of source
+        destination_type:
+          type: string
+          enum: [wallet, exchange]
+          description: Type of destination
+        source_id:
+          type: string
+          description: ID of the source wallet or exchange
+        destination_id:
+          type: string
+          description: ID of the destination wallet or exchange
+        asset:
+          type: string
+          description: Asset being transferred
+        quantity:
+          type: number
+          format: double
+          description: Quantity transferred
+        fee:
+          type: number
+          format: double
+          description: Fee paid for the transfer
+        fee_asset:
+          type: string
+          description: Asset in which the fee was paid
+        status:
+          type: string
+          enum: [pending, completed, failed]
+          description: Status of the transfer
+        timestamp:
+          type: string
+          format: date-time
+          description: When the transfer occurred
+      example:
+        id: "123e4567-e89b-12d3-a456-426614174000"
+        client_id: "98765432-e89b-12d3-a456-426614174000"
+        source_type: "exchange"
+        destination_type: "wallet"
+        source_id: "abcdef12-e89b-12d3-a456-426614174000"
+        destination_id: "fedcba98-e89b-12d3-a456-426614174000"
+        asset: "ETH"
+        quantity: 2.5
+        fee: 0.001
+        fee_asset: "ETH"
+        status: "completed"
+        timestamp: "2023-01-15T12:00:00Z"
+    
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the transaction
+        client_id:
+          type: string
+          format: uuid
+          description: ID of the client
+        transaction_type:
+          type: string
+          enum: [trade, transfer, deposit, withdrawal, reward, fee]
+          description: Type of transaction
+        asset:
+          type: string
+          description: Asset involved in the transaction
+        quantity:
+          type: number
+          format: double
+          description: Quantity of the asset
+        usd_value:
+          type: number
+          format: double
+          description: Value in USD at the time of the transaction
+        source:
+          type: string
+          description: Source of the transaction
+        destination:
+          type: string
+          description: Destination of the transaction
+        timestamp:
+          type: string
+          format: date-time
+          description: When the transaction occurred
+      example:
+        id: "123e4567-e89b-12d3-a456-426614174000"
+        client_id: "98765432-e89b-12d3-a456-426614174000"
+        transaction_type: "trade"
+        asset: "BTC"
+        quantity: 0.1
+        usd_value: 4000
+        source: "USD"
+        destination: "BTC Wallet"
+        timestamp: "2023-01-15T12:00:00Z"
+    
+    Balance:
+      type: object
+      properties:
+        client_id:
+          type: string
+          format: uuid
+          description: ID of the client
+        asset:
+          type: string
+          description: Asset symbol
+        quantity:
+          type: number
+          format: double
+          description: Total quantity of the asset
+        usd_value:
+          type: number
+          format: double
+          description: Value in USD based on current price
+        wallet_balances:
+          type: array
+          items:
+            type: object
+            properties:
+              wallet_id:
+                type: string
+                format: uuid
+                description: ID of the wallet
+              quantity:
+                type: number
+                format: double
+                description: Quantity in this wallet
+        exchange_balances:
+          type: array
+          items:
+            type: object
+            properties:
+              exchange_id:
+                type: string
+                format: uuid
+                description: ID of the exchange
+              quantity:
+                type: number
+                format: double
+                description: Quantity in this exchange
+        updated_at:
+          type: string
+          format: date-time
+          description: When the balance was last updated
+      example:
+        client_id: "98765432-e89b-12d3-a456-426614174000"
+        asset: "ETH"
+        quantity: 5.75
+        usd_value: 11500
+        wallet_balances:
+          - wallet_id: "aaaabbbb-e89b-12d3-a456-426614174000"
+            quantity: 3.5
+          - wallet_id: "ccccdddd-e89b-12d3-a456-426614174000"
+            quantity: 1.25
+        exchange_balances:
+          - exchange_id: "eeeeffff-e89b-12d3-a456-426614174000"
+            quantity: 1.0
+        updated_at: "2023-01-15T12:00:00Z"
+    
+    DepositWithdrawal:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the deposit/withdrawal
+        client_id:
+          type: string
+          format: uuid
+          description: ID of the client
+        type:
+          type: string
+          enum: [deposit, withdrawal]
+          description: Type of transaction
+        asset:
+          type: string
+          description: Asset involved
+        quantity:
+          type: number
+          format: double
+          description: Quantity of the asset
+        usd_value:
+          type: number
+          format: double
+          description: Value in USD at the time of the transaction
+        source:
+          type: string
+          description: Source of the transaction
+        destination:
+          type: string
+          description: Destination of the transaction
+        timestamp:
+          type: string
+          format: date-time
+          description: When the transaction occurred
+      example:
+        id: "123e4567-e89b-12d3-a456-426614174000"
+        client_id: "98765432-e89b-12d3-a456-426614174000"
+        type: "deposit"
+        asset: "USD"
+        quantity: 10000
+        usd_value: 10000
+        source: "Bank Account"
+        destination: "Coinbase"
+        timestamp: "2023-01-15T12:00:00Z"
+    
+    TotalDepositWithdrawal:
+      type: object
+      properties:
+        client_id:
+          type: string
+          format: uuid
+          description: ID of the client
+        total_deposits:
+          type: number
+          format: double
+          description: Total USD value of all deposits
+        total_withdrawals:
+          type: number
+          format: double
+          description: Total USD value of all withdrawals
+        net_flow:
+          type: number
+          format: double
+          description: Net flow (deposits - withdrawals)
+        period_start:
+          type: string
+          format: date
+          description: Start date of the period
+        period_end:
+          type: string
+          format: date
+          description: End date of the period
+      example:
+        client_id: "98765432-e89b-12d3-a456-426614174000"
+        total_deposits: 50000
+        total_withdrawals: 20000
+        net_flow: 30000
+        period_start: "2022-01-01"
+        period_end: "2022-12-31"
+    
+    # Market Data Schemas
+    HoldingPrice:
+      type: object
+      properties:
+        symbol:
+          type: string
+          description: Asset symbol
+        price:
+          type: number
+          format: double
+          description: Price in USD
+        market_cap:
+          type: number
+          format: double
+          description: Market capitalization in USD
+        volume_24h:
+          type: number
+          format: double
+          description: 24-hour trading volume in USD
+        percent_change_24h:
+          type: number
+          format: double
+          description: 24-hour percent change
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp of the price
+      example:
+        symbol: "BTC"
+        price: 40000
+        market_cap: 750000000000
+        volume_24h: 25000000000
+        percent_change_24h: 2.5
+        timestamp: "2023-01-15T12:00:00Z"
+    
+    Price:
+      type: object
+      properties:
+        symbol:
+          type: string
+          description: Asset symbol
+        price:
+          type: number
+          format: double
+          description: Current price in USD
+        percent_change_24h:
+          type: number
+          format: double
+          description: 24-hour percent change
+        percent_change_7d:
+          type: number
+          format: double
+          description: 7-day percent change
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp of the price update
+      example:
+        symbol: "ETH"
+        price: 2000
+        percent_change_24h: 1.2
+        percent_change_7d: -3.5
+        updated_at: "2023-01-15T12:00:00Z"
+    
+    SettlementPrice:
+      type: object
+      properties:
+        symbol:
+          type: string
+          description: Asset symbol
+        price:
+          type: number
+          format: double
+          description: Settlement price in USD
+        date:
+          type: string
+          format: date
+          description: Settlement date
+        source:
+          type: string
+          description: Source of the settlement price
+      example:
+        symbol: "BTC"
+        price: 39876.54
+        date: "2023-01-15"
+        source: "CoinMarketCap"
+    
+    # Common Schemas
+    Pagination:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: Total number of items
+        page:
+          type: integer
+          description: Current page number
+        limit:
+          type: integer
+          description: Number of items per page
+        pages:
+          type: integer
+          description: Total number of pages
+      example:
+        total: 100
+        page: 1
+        limit: 25
+        pages: 4
+    
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+        message:
+          type: string
+          description: Error message
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                description: Field with the error
+              message:
+                type: string
+                description: Specific error message for this field
+      example:
+        code: "VALIDATION_ERROR"
+        message: "Validation failed"
+        details:
+          - field: "email"
+            message: "Invalid email format"
+  
+  parameters:
+    ClientIdParam:
+      name: clientId
+      in: path
+      description: ID of the client
+      required: true
+      schema:
+        type: string
+        format: uuid
+    
+    DateFromParam:
+      name: dateFrom
+      in: query
+      description: Start date for filtering (YYYY-MM-DD)
+      required: false
+      schema:
+        type: string
+        format: date
+    
+    DateToParam:
+      name: dateTo
+      in: query
+      description: End date for filtering (YYYY-MM-DD)
+      required: false
+      schema:
+        type: string
+        format: date
+    
+    PageParam:
+      name: page
+      in: query
+      description: Page number for pagination
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    
+    LimitParam:
+      name: limit
+      in: query
+      description: Number of items per page
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 25
+  
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  
+  securitySchemes:
+    clientCredentials:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: /NewAccessToken
+          scopes: {}
+      description: OAuth 2.0 Client Credentials flow using Client_ID and Client_Secret headers
+      x-sideko-credentials-location: basic_authorization_header
+      x-sideko-body-content-type: json
+      x-sideko-access-token-json-pointer: /access_token
+      x-sideko-expires-in-json-pointer: /expires_in
+      x-sideko-param: token
+
+
